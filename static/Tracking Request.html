@@ -1,0 +1,128 @@
+<!DOCTYPE HTML>
+<!--
+	Alpha by HTML5 UP
+	html5up.net | @ajlkn
+	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
+-->
+<html>
+	<head>
+		<title>Tracking Request</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+		<link rel="stylesheet" href="assets/css/main.css" />
+	</head>
+	<body class="is-preload">
+		<div id="page-wrapper">
+
+			<!-- Header -->
+				<header id="header">
+					<h1><a href="Homepage.html">TrackSAT.Land</a> by The House of Unrecognized Talent</h1>
+					<nav id="nav">
+						<ul>
+							<li><a href="Homepage.html">Home</a></li>
+						</ul>
+					</nav>
+				</header>
+
+			<!-- Main -->
+				<section id="main" class="container medium">
+					<header>
+						<h2>Tracking Request</h2>
+						<p>Select a target location to track passes and specify notification preferences</p>
+					</header>
+					<div class="box">
+						<form method="post" action="#">
+							<div class="row gtr-50 gtr-uniform">
+								<div class="col-12">
+ 							  	<h4>Tracking Period</h4>
+								<p>Specify the tracking period for the chosen target location.</p>
+								  <input type="radio" id="Single" name="track_period" value="Next Pass" required>
+								  <label for="Single">Next Pass</label><br>
+								  <input type="radio" id="Range" name="track_period" value="Range">
+  								  <label for="Range">Range
+								    <div class="col-6 col-12-mobilep">
+								    <input type="date" name="time_range" id="start" value="" placeholder="Start Date" />
+								    </div>
+								    <div class="col-6 col-12-mobilep">
+								    <input type="date" name="time_range" id="end" value="" placeholder="End Date" />
+								    </div>
+                    						  </label><br>
+								</div>
+
+								<div class="col-12">
+								<h4>Cloud Coverage</h4>
+								<p>Specify the maximum acceptable cloud coverage for the imagery as a decimal percent.</p>
+								    <input type="number" name="cloud_cover" id="cloud_clover" min = "0" max = "1" value="0.3" placeholder="Cloud Cover" />
+								</div>
+
+								<br>
+
+								<div class="col-12">
+								<h4>Notification Frequency</h4>
+								<p>Select all notifications you wish to recieve for satellite passes.</p>
+								<input type="checkbox" id="15m" name="notification_frequency" value="0.25">
+								<label for="15m"> 15 minutes before</label><br>
+								<input type="checkbox" id="30m" name="notification_frequency" value="0.5">
+								<label for="30m"> 30 minutes before</label><br>
+								<input type="checkbox" id="1hr" name="notification_frequency" value="1">
+								<label for="1hr"> 1 hour before</label><br>
+								<input type="checkbox" id="6hr" name="notification_frequency" value="6">
+								<label for="6hr"> 6 hours before</label><br>
+								<input type="checkbox" id="12hr" name="notification_frequency" value="12">
+								<label for="12hr"> 12 hours before</label><br>
+								<input type="checkbox" id="1d" name="notification_frequency" value="24">
+								<label for="1d"> 1 day before</label><br>
+								<input type="checkbox" id="1w" name="notification_frequency" value="168">
+								<label for="1w"> 1 week before</label><br>
+								</div>
+								<br>
+								
+								<div class="col-12">
+								<h4>Contact Email</h4>
+								<p>Please provide an email address for notification and data delivery.</p>
+								<input type="email" name="contact_email" id="email" value="" placeholder="Email" required/>
+								</div>
+								<br>
+								<br><br>
+		
+
+
+		
+								<div class="col-12">
+									<ul class="actions special">
+										<li><input type="submit" value="Submit" /></li>
+									</ul>
+								</div>
+							</div>
+						</form>
+					</div>
+				</section>
+
+			<!-- Footer -->
+				<footer id="footer">
+					<ul class="icons">
+						<li><a href="#" class="icon brands fa-twitter"><span class="label">Twitter</span></a></li>
+						<li><a href="#" class="icon brands fa-facebook-f"><span class="label">Facebook</span></a></li>
+						<li><a href="#" class="icon brands fa-instagram"><span class="label">Instagram</span></a></li>
+						<li><a href="#" class="icon brands fa-github"><span class="label">Github</span></a></li>
+						<li><a href="#" class="icon brands fa-dribbble"><span class="label">Dribbble</span></a></li>
+						<li><a href="#" class="icon brands fa-google-plus"><span class="label">Google+</span></a></li>
+					</ul>
+					<ul class="copyright">
+						<li>&copy; Untitled. All rights reserved.</li><li>Design: <a href="http://html5up.net">HTML5 UP</a></li>
+					</ul>
+				</footer>
+
+		</div>
+
+		<!-- Scripts -->
+			<script src="assets/js/jquery.min.js"></script>
+			<script src="assets/js/jquery.dropotron.min.js"></script>
+			<script src="assets/js/jquery.scrollex.min.js"></script>
+			<script src="assets/js/browser.min.js"></script>
+			<script src="assets/js/breakpoints.min.js"></script>
+			<script src="assets/js/util.js"></script>
+			<script src="assets/js/main.js"></script>
+
+	</body>
+</html>
