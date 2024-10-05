@@ -3,3 +3,7 @@ gunicorn==22.0.0
 Werkzeug==3.0.3
 python-dotenv==1.0.1
 requests
+pystac-client==0.8.3
+planetary-computer==1.0.0
+odc-stac==0.3.10
+matplotlib==3.9.0
