@@ -16,7 +16,7 @@
 
 			<!-- Header -->
 				<header id="header">
-					<h1><a href="Homepage.html">TrackSAT.Land</a> by The House of Unrecognized Talent</h1>
+					<h1><a href="Homepage.html">LANDSAT CONNECT</a> by The House of Unrecognized Talent</h1>
 					<nav id="nav">
 						<ul>
 							<li><a href="Homepage.html">Home</a></li>
@@ -33,20 +33,33 @@
 					<div class="box">
 						<form method="post" action="#">
 							<div class="row gtr-50 gtr-uniform">
+
 								<div class="col-12">
- 							  	<h4>Tracking Period</h4>
-								<p>Specify the tracking period for the chosen target location.</p>
-								  <input type="radio" id="Single" name="track_period" value="Next Pass" required>
-								  <label for="Single">Next Pass</label><br>
-								  <input type="radio" id="Range" name="track_period" value="Range">
-  								  <label for="Range">Range
-								    <div class="col-6 col-12-mobilep">
-								    <input type="date" name="time_range" id="start" value="" placeholder="Start Date" />
-								    </div>
-								    <div class="col-6 col-12-mobilep">
-								    <input type="date" name="time_range" id="end" value="" placeholder="End Date" />
-								    </div>
-                    						  </label><br>
+									<h4>Target Location</h4>
+									<p>Enter coordinates for the target location in decimal degrees.</p>
+								</div>
+									<div class="col-12-mobilep">
+										<input type="number" name="target_coordinates" id="latitude" value="" placeholder="Latitude" reqiuired/>
+									</div>
+									<div class="col-12-mobilep">
+										<input type="number" name="target_coordinates" id="Longitude" value="" placeholder="Longitude" required/>
+									</div>
+
+								<div class="col-12">
+ 							  		<h4>Tracking Period</h4>
+									<p>Specify the tracking period for the chosen target location.</p>
+								</div>
+								<div class="col-12-mobilep">
+									<input type="radio" id="Single" name="track_period" value="Next Pass" required>
+									<label for="Single">Next Pass</label>
+								</div>
+				
+								<div class="col-12-mobilep">
+									<input type="radio" id="Range" name="track_period" value="Range">
+  									 	<label for="Range">Range <br>
+								   				From &ensp;<input type="date" name="time_range" id="start" value="" placeholder="Start Date" />
+												   &ensp; To &ensp; <input type="date" name="time_range" id="end" value="" placeholder="End Date" />
+                    					</label><br>
 								</div>
 
 								<div class="col-12">
@@ -109,7 +122,7 @@
 						<li><a href="#" class="icon brands fa-google-plus"><span class="label">Google+</span></a></li>
 					</ul>
 					<ul class="copyright">
-						<li>&copy; Untitled. All rights reserved.</li><li>Design: <a href="http://html5up.net">HTML5 UP</a></li>
+						<li>&copy; 2024 LANDSAT CONNECT. NASA Space Apps Challenge. All rights reserved.</li><li>Design: Modified template from <a href="http://html5up.net">HTML5 UP</a></li>
 					</ul>
 				</footer>
 
