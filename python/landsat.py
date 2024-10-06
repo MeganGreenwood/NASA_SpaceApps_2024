@@ -49,6 +49,11 @@ class LandsatData:
 
         self.items = search.item_collection()
 
+        if len(self.items) == 0:
+            self.selected_item = None
+            self.data = None
+            return
+
         self.selected_item = max(self.items, key=lambda item: item.datetime)
 
         bands_of_interest = ["nir08", "red", "green", "blue", "qa_pixel", "lwir11"]
@@ -110,6 +115,8 @@ class LandsatData:
     def landsat_metadata(
             self
     ):
+        if self.selected_item is None:
+            return "No data found"
 
         return f"""
         Image Metadata <br/>
