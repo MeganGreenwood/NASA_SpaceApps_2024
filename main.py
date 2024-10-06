@@ -169,7 +169,9 @@ def getRequest(request_id):
         return render_template(
             'request_complete.html',
             request_id=request_id,
-            request_passes=passes_str
+            request_passes=passes_str,
+            latitude=row['latitude'],
+            longitude=row['longitude']
         )
     else:
         # Check if email threshold is met
@@ -181,7 +183,9 @@ def getRequest(request_id):
         return render_template(
             'request_pending.html',
             next_pass_time=next_pass_time,
-            request_id=request_id
+            request_id=request_id,
+            latitude=row['latitude'],
+            longitude=row['longitude']
         )
 
 @app.route('/request/<request_id>/pass/<pass_time>')
