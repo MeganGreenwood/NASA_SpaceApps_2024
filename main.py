@@ -173,14 +173,16 @@ def getRequest(request_id):
         )
     else:
         # Check if email threshold is met
-        if datetime.now(tz=timezone.utc) < any(remind_delta_timestamps):
+        if any([datetime.now(tz=timezone.utc) < remind_delta_timestamp for remind_delta_timestamp in remind_delta_timestamps]):
             try:
                 send_pass_reminder(row['email'], next_pass_time, remind_intervals_names, request_id, 'https://landsatconnect.earth' + url_for('getRequest',request_id=request_id))
             except:
                 print('Failed to send email')
+        return render_template(
             'request_pending.html',
             next_pass_time=next_pass_time,
             request_id=request_id
+        )
 
 @app.route('/request/<request_id>/pass/<pass_time>')
 def getRequestPass(request_id, pass_time):
