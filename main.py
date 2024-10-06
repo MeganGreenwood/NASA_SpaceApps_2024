@@ -4,6 +4,7 @@ from flask import Flask, render_template, send_from_directory, request, g, redir
 import sqlite3
 
 from python.form_submission import formSubmission
+from python.init_db import init_db
 
 load_dotenv()
 app = Flask(__name__)
@@ -13,6 +14,7 @@ DATABASE = 'database.db'
 def get_db():
     db = getattr(g, '_database', None)
     if db is None:
+        init_db()
         db = g._database = sqlite3.connect(DATABASE)
     return db
 
