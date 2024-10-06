@@ -9,17 +9,17 @@
 		<title>Tracking Request</title>
 		<meta charset="utf-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
-		<link rel="stylesheet" href="assets/css/main.css" />
+		<link rel="stylesheet" href="static/assets/css/main.css" />
 	</head>
 	<body class="is-preload">
 		<div id="page-wrapper">
 
 			<!-- Header -->
 				<header id="header">
-					<h1><a href="Homepage.html">LANDSAT CONNECT</a> by The House of Unrecognized Talent</h1>
+					<h1><a href="/">LANDSAT CONNECT</a> by The House of Unrecognized Talent</h1>
 					<nav id="nav">
 						<ul>
-							<li><a href="Homepage.html">Home</a></li>
+							<li><a href="/">Home</a></li>
 						</ul>
 					</nav>
 				</header>
@@ -31,7 +31,7 @@
 						<p>Select a target location to track passes and specify notification preferences</p>
 					</header>
 					<div class="box">
-						<form method="post" action="#">
+						<form method="post" action="/SubmitTrackingRequest">
 							<div class="row gtr-50 gtr-uniform">
 
 								<div class="col-12">
@@ -39,10 +39,10 @@
 									<p>Enter coordinates for the target location in decimal degrees.</p>
 								</div>
 									<div class="col-12-mobilep">
-										<input type="number" name="target_coordinates" id="latitude" value="" placeholder="Latitude" reqiuired/>
+										<input type="number" name="target_coordinates_latitude" id="latitude" value="" placeholder="Latitude" reqiuired/>
 									</div>
 									<div class="col-12-mobilep">
-										<input type="number" name="target_coordinates" id="Longitude" value="" placeholder="Longitude" required/>
+										<input type="number" name="target_coordinates_longitude" id="longitude" value="" placeholder="Longitude" required/>
 									</div>
 
 								<div class="col-12">
@@ -50,13 +50,13 @@
 									<p>Specify the tracking period for the chosen target location.</p>
 								</div>
 								<div class="col-12-mobilep">
-									<input type="radio" id="Single" name="track_period" value="Next Pass" required>
-									<label for="Single">Next Pass</label>
+									<input type="radio" id="track_period" name="track_period" value="Next Pass" required>
+									<label for="track_period">Next Pass</label>
 								</div>
 				
 								<div class="col-12-mobilep">
-									<input type="radio" id="Range" name="track_period" value="Range">
-  									 	<label for="Range">Range <br>
+									<input type="radio" id="time_range" name="time_range" value="Range">
+  									 	<label for="time_range">Range <br>
 								   				From &ensp;<input type="date" name="time_range" id="start" value="" placeholder="Start Date" />
 												   &ensp; To &ensp; <input type="date" name="time_range" id="end" value="" placeholder="End Date" />
                     					</label><br>
@@ -73,19 +73,19 @@
 								<div class="col-12">
 								<h4>Notification Frequency</h4>
 								<p>Select all notifications you wish to recieve for satellite passes.</p>
-								<input type="checkbox" id="15m" name="notification_frequency" value="0.25">
+								<input type="checkbox" id="15m" name="notification_frequency_15m" value="0.25">
 								<label for="15m"> 15 minutes before</label><br>
-								<input type="checkbox" id="30m" name="notification_frequency" value="0.5">
+								<input type="checkbox" id="30m" name="notification_frequency_30m" value="0.5">
 								<label for="30m"> 30 minutes before</label><br>
-								<input type="checkbox" id="1hr" name="notification_frequency" value="1">
+								<input type="checkbox" id="1hr" name="notification_frequency_1hr" value="1">
 								<label for="1hr"> 1 hour before</label><br>
-								<input type="checkbox" id="6hr" name="notification_frequency" value="6">
+								<input type="checkbox" id="6hr" name="notification_frequency_6hr" value="6">
 								<label for="6hr"> 6 hours before</label><br>
-								<input type="checkbox" id="12hr" name="notification_frequency" value="12">
+								<input type="checkbox" id="12hr" name="notification_frequency_12hr" value="12">
 								<label for="12hr"> 12 hours before</label><br>
-								<input type="checkbox" id="1d" name="notification_frequency" value="24">
+								<input type="checkbox" id="1d" name="notification_frequency_1d" value="24">
 								<label for="1d"> 1 day before</label><br>
-								<input type="checkbox" id="1w" name="notification_frequency" value="168">
+								<input type="checkbox" id="1w" name="notification_frequency_1w" value="168">
 								<label for="1w"> 1 week before</label><br>
 								</div>
 								<br>
@@ -129,13 +129,13 @@
 		</div>
 
 		<!-- Scripts -->
-			<script src="assets/js/jquery.min.js"></script>
-			<script src="assets/js/jquery.dropotron.min.js"></script>
-			<script src="assets/js/jquery.scrollex.min.js"></script>
-			<script src="assets/js/browser.min.js"></script>
-			<script src="assets/js/breakpoints.min.js"></script>
-			<script src="assets/js/util.js"></script>
-			<script src="assets/js/main.js"></script>
+			<script src="static/assets/js/jquery.min.js"></script>
+			<script src="static/assets/js/jquery.dropotron.min.js"></script>
+			<script src="static/assets/js/jquery.scrollex.min.js"></script>
+			<script src="static/assets/js/browser.min.js"></script>
+			<script src="static/assets/js/breakpoints.min.js"></script>
+			<script src="static/assets/js/util.js"></script>
+			<script src="static/assets/js/main.js"></script>
 
 	</body>
 </html>
