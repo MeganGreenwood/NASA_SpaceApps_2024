@@ -1,8 +1,9 @@
 from datetime import datetime, timezone, timedelta
+import glob
 import io
 import os
 from dotenv import load_dotenv
-from flask import Flask, render_template, send_from_directory, request, g, redirect, Response, url_for
+from flask import Flask, render_template, send_from_directory, request, g, redirect, Response, url_for, send_file
 from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
 import sqlite3
 
@@ -210,6 +211,16 @@ def generateLandsatRGB(request_id, pass_time):
     FigureCanvas(fig).print_png(output)
     return Response(output.getvalue(), mimetype='image/png')
 
+@app.route('/landsat/<request_id>/<pass_time>_rgb/download', methods=['GET', 'POST'])
+def generateLandsatRGBDownload(request_id, pass_time):
+    row = get_request(request_id)
+    pass_datetime = datetime.strptime(pass_time, '%Y-%m-%d_%H:%M:%S')
+    lsd = LandsatData(longitude=row['longitude'], latitude=row['latitude'], pass_time=pass_datetime)
+    fig = lsd.landsat_rgb()
+    file_name = f'landsat_rgb_{request_id}_{pass_time}.png'
+    FigureCanvas(fig).print_png('upload/'+file_name)
+    return send_file('upload/'+file_name, mimetype='image/png', as_attachment=True, download_name=file_name)
+
 @app.route('/landsat/<request_id>/<pass_time>_tmp.png')
 def generateLandsatTmp(request_id, pass_time):
     row = get_request(request_id)
@@ -218,6 +229,15 @@ def generateLandsatTmp(request_id, pass_time):
     output = io.BytesIO()
     FigureCanvas(fig).print_png(output)
     return Response(output.getvalue(), mimetype='image/png')
+
+@app.route('/landsat/<request_id>/<pass_time>_tmp/download')
+def generateLandsatTmpDownload(request_id, pass_time):
+    row = get_request(request_id)
+    lsd = LandsatData(longitude=row['longitude'], latitude=row['latitude'], pass_time=pass_time) # TODO can we share these between calls?
+    fig = lsd.landsat_temp()
+    file_name = f'landsat_tmp_{request_id}_{pass_time}.png'
+    FigureCanvas(fig).print_png('upload/'+file_name)
+    return send_file('upload/'+file_name, mimetype='image/png', as_attachment=True, download_name=file_name)
 
 @app.route('/landsat/<request_id>/<pass_time>_ndvi.png')
 def generateLandsatNdvi(request_id, pass_time):
@@ -228,11 +248,23 @@ def generateLandsatNdvi(request_id, pass_time):
     FigureCanvas(fig).print_png(output)
     return Response(output.getvalue(), mimetype='image/png')
 
+@app.route('/landsat/<request_id>/<pass_time>_ndvi/download')
+def generateLandsatNdviDownload(request_id, pass_time):
+    row = get_request(request_id)
+    lsd = LandsatData(longitude=row['longitude'], latitude=row['latitude'], pass_time=pass_time) # TODO can we share these between calls?
+    fig = lsd.landsat_ndvi()
+    file_name = f'landsat_ndvi_{request_id}_{pass_time}.png'
+    FigureCanvas(fig).print_png('upload/'+file_name)
+    return send_file('upload/'+file_name, mimetype='image/png', as_attachment=True, download_name=file_name)
+
 @app.teardown_appcontext
 def close_connection(exception):
     db = getattr(g, '_database', None)
     if db is not None:
         db.close()
+    files = glob.glob('upload/*')
+    for f in files:
+        os.remove(f)
 
 if __name__ == "__main__":
     app.run(debug=True, host="0.0.0.0", port=int(os.environ.get("PORT", 8080)))
