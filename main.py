@@ -150,21 +150,33 @@ def getRequest(request_id):
     remind_intervals_names, remind_deltas = get_remind_interval(row)
     remind_delta_timestamps = [datetime.now(tz=timezone.utc) - delta for delta in remind_deltas]
 
-    passes = landsat_passes(
+    scheduled_passes = landsat_passes(
+        longitude=row['longitude'],
+        latitude=row['latitude']
+    )
+    scheduled_passes_str = [ls_pass.strftime('%Y-%m-%d_%H:%M:%S')+'<br>' for ls_pass in scheduled_passes]
+
+    lsd = LandsatData(
         longitude=row['longitude'],
         latitude=row['latitude'],
         time_range_start=time_range_start,
-        time_range_end=time_range_end
+        time_range_end=time_range_end,
+        cloud_cover=row['cloud_cover']
     )
-    passes_str = [pass_dt.strftime('%Y-%m-%d_%H:%M:%S') for pass_dt in passes]
+    passes = lsd.items
+    
+    recent_pass = datetime(9999,1,1, tzinfo=timezone.utc)
     if len(passes) > 0:
-        next_pass_time = passes[0]
+        passes_str = [ls_pass.datetime.strftime('%Y-%m-%d_%H:%M:%S') for ls_pass in passes]
+        recent_pass = passes[0].datetime
+    if len(scheduled_passes) > 0:
+        next_pass_time = scheduled_passes[0]
     else:
-        return 'No Passes Found'
+        return 'No upcoming passes could be found for this location'
     # Get LandSAT data if time has passed
     # TODO: checking if range is less than today doesn't guarantee request is complete
     # TODO: Email is only sent at request creation time - not a fully functioning reminder system
-    if next_pass_time < datetime.now(tz=timezone.utc) or (time_range_start or datetime(9999,1,1, tzinfo=timezone.utc)) < datetime.now(tz=timezone.utc):
+    if recent_pass < datetime.now(tz=timezone.utc): #or (time_range_start or datetime(9999,1,1, tzinfo=timezone.utc)) < datetime.now(tz=timezone.utc):
         # TODO Record that we have sent email so users do not get emailed every time this page is refreshed
         try:
             send_pass_reminder(row['email'], next_pass_time, remind_intervals_names, request_id, 'https://landsatconnect.earth' + url_for('getRequest',request_id=request_id))
@@ -186,7 +198,7 @@ def getRequest(request_id):
                 print('Failed to send email')
         return render_template(
             'request_pending.html',
-            next_pass_time=next_pass_time,
+            scheduled_passes=scheduled_passes_str,
             request_id=request_id,
             latitude=row['latitude'],
             longitude=row['longitude']
@@ -196,12 +208,11 @@ def getRequest(request_id):
 def getRequestPass(request_id, pass_time):
     row = get_request(request_id)
     time_range_start, time_range_end = get_time_range_dt(row)
+    pass_datetime = datetime.strptime(pass_time, '%Y-%m-%d_%H:%M:%S')
     lsd = LandsatData(
         longitude=row['longitude'],
         latitude=row['latitude'],
-        pass_time=pass_time,
-        time_range_start=time_range_start,
-        time_range_end=time_range_end,
+        pass_time=pass_datetime,
         cloud_cover=row['cloud_cover']
     ) # TODO can we share these between calls?
     metadata = lsd.landsat_metadata()
@@ -220,9 +231,7 @@ def generateLandsatRGB(request_id, pass_time):
     lsd = LandsatData(
         longitude=row['longitude'],
         latitude=row['latitude'],
-        pass_time=pass_time,
-        time_range_start=time_range_start,
-        time_range_end=time_range_end,
+        pass_time=pass_datetime,
         cloud_cover=row['cloud_cover']
     )    
     fig = lsd.landsat_rgb()
@@ -238,9 +247,7 @@ def generateLandsatRGBDownload(request_id, pass_time):
     lsd = LandsatData(
         longitude=row['longitude'],
         latitude=row['latitude'],
-        pass_time=pass_time,
-        time_range_start=time_range_start,
-        time_range_end=time_range_end,
+        pass_time=pass_datetime,
         cloud_cover=row['cloud_cover']
     )    
     fig = lsd.landsat_rgb()
@@ -252,12 +259,11 @@ def generateLandsatRGBDownload(request_id, pass_time):
 def generateLandsatTmp(request_id, pass_time):
     row = get_request(request_id)
     time_range_start, time_range_end = get_time_range_dt(row)
+    pass_datetime = datetime.strptime(pass_time, '%Y-%m-%d_%H:%M:%S')
     lsd = LandsatData(
         longitude=row['longitude'],
         latitude=row['latitude'],
-        pass_time=pass_time,
-        time_range_start=time_range_start,
-        time_range_end=time_range_end,
+        pass_time=pass_datetime,
         cloud_cover=row['cloud_cover']
     )    
     fig = lsd.landsat_temp()
@@ -269,12 +275,11 @@ def generateLandsatTmp(request_id, pass_time):
 def generateLandsatTmpDownload(request_id, pass_time):
     row = get_request(request_id)
     time_range_start, time_range_end = get_time_range_dt(row)
+    pass_datetime = datetime.strptime(pass_time, '%Y-%m-%d_%H:%M:%S')
     lsd = LandsatData(
         longitude=row['longitude'],
         latitude=row['latitude'],
-        pass_time=pass_time,
-        time_range_start=time_range_start,
-        time_range_end=time_range_end,
+        pass_time=pass_datetime,
         cloud_cover=row['cloud_cover']
     )    
     fig = lsd.landsat_temp()
@@ -286,12 +291,11 @@ def generateLandsatTmpDownload(request_id, pass_time):
 def generateLandsatNdvi(request_id, pass_time):
     row = get_request(request_id)
     time_range_start, time_range_end = get_time_range_dt(row)
+    pass_datetime = datetime.strptime(pass_time, '%Y-%m-%d_%H:%M:%S')
     lsd = LandsatData(
         longitude=row['longitude'],
         latitude=row['latitude'],
-        pass_time=pass_time,
-        time_range_start=time_range_start,
-        time_range_end=time_range_end,
+        pass_time=pass_datetime,
         cloud_cover=row['cloud_cover']
     )    
     fig = lsd.landsat_ndvi()
@@ -303,12 +307,11 @@ def generateLandsatNdvi(request_id, pass_time):
 def generateLandsatNdviDownload(request_id, pass_time):
     row = get_request(request_id)
     time_range_start, time_range_end = get_time_range_dt(row)
+    pass_datetime = datetime.strptime(pass_time, '%Y-%m-%d_%H:%M:%S')
     lsd = LandsatData(
         longitude=row['longitude'],
         latitude=row['latitude'],
-        pass_time=pass_time,
-        time_range_start=time_range_start,
-        time_range_end=time_range_end,
+        pass_time=pass_datetime,
         cloud_cover=row['cloud_cover']
     )    
     fig = lsd.landsat_ndvi()

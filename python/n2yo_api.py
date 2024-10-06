@@ -10,9 +10,7 @@ load_dotenv()
 def landsat_passes_given_sat_id(
         latitude: float,
         longitude: float,
-        norad_id: int,
-        time_range_start: datetime = None,
-        time_range_end: datetime = None,
+        norad_id: int
 ):
     observer_lat = latitude
     observer_lng = longitude
@@ -29,38 +27,32 @@ def landsat_passes_given_sat_id(
     if 'passes' in res_j.keys():
         for item in res_j['passes']:
             pass_time = datetime.fromtimestamp(item['startUTC'], tz=timezone.utc)
-            if time_range_end is not None and time_range_start is not None:
-                if pass_time > time_range_start and pass_time < time_range_end:
-                    passes.append(pass_time)
-            else:
-                passes.append(pass_time)
+            # if time_range_end is not None and time_range_start is not None:
+            #     if pass_time > time_range_start and pass_time < time_range_end:
+            passes.append(pass_time)
+            # else:
+                # passes.append(pass_time)
     return passes
 
 def landsat_passes(
         latitude,
-        longitude,
-        time_range_start: datetime = None,
-        time_range_end: datetime = None,
-        limit: int = 1
-) -> list[datetime]:
+        longitude
+) -> list[str]:
     ls_8_passes = landsat_passes_given_sat_id(
         latitude=latitude,
         longitude=longitude,
-        time_range_start=time_range_start,
-        time_range_end=time_range_end,
         norad_id=39084 # LANDSAT 8
     )
     ls_9_passes = landsat_passes_given_sat_id(
         latitude=latitude,
         longitude=longitude,
-        time_range_start=time_range_start,
-        time_range_end=time_range_end,
         norad_id=49260 # LANDSAT 9
     )
 
     all_passes = ls_8_passes + ls_9_passes
     all_passes_sorted = sorted(all_passes)
 
-    return all_passes_sorted[:limit]
+
+    return all_passes_sorted
 
 # print(landsat_passes(-33.96245606251111, 149.9673963028338, limit=3))

@@ -40,7 +40,13 @@
 								</div>
 
 								<div class="col-12">
-									<p>The next satellite pass will occur at {{ next_pass_time }}</p>
+									<p>LandSAT 8 & 9 scheduled passes:<br>
+										{% for scheduled_pass in scheduled_passes %}
+											{% autoescape false %}
+												{{scheduled_pass}}
+											{% endautoescape %}
+										{% endfor %}
+									</p>
 								</div>
 						
 					</div>

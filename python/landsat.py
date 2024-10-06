@@ -11,10 +11,10 @@ class LandsatData:
             self,
             latitude: float,
             longitude: float,
-            pass_time: datetime | None,
-            time_range_start: datetime | None,
-            time_range_end: datetime | None,
-            cloud_cover: float
+            time_range_start: datetime | None = None,
+            time_range_end: datetime | None = None,
+            pass_time: datetime | None = None,
+            cloud_cover: float = 0.3
     ):
         self.latitude = latitude
         self.longitude = longitude
@@ -27,15 +27,21 @@ class LandsatData:
             self.input_start = time_range_start.strftime('%Y-%m-%d')
             self.input_end = time_range_end.strftime('%Y-%m-%d')
         elif pass_time is not None:
-            self.input_start = pass_time - timedelta(hours=1)
-            self.input_end = pass_time + timedelta(hours=1)
+            self.input_start = pass_time.strftime('%Y-%m-%d')
+            self.input_end = None
         else:
-            raise Exception('No time data selected for satellite pass')
+            print('No time data selected for satellite pass')
+            self.items = []
+            return
 
         self.bbox_of_interest = [self.bbox_xmin, self.bbox_ymin, self.bbox_xmax, self.bbox_ymax]
-        self.time_of_interest = f"{self.input_start}/{self.input_end}"
-        print(self.time_of_interest)
+        if self.input_end is not None:
+            self.time_of_interest = f"{self.input_start}/{self.input_end}"
+        else:
+            self.time_of_interest = self.input_start
+        # print(self.time_of_interest)
 
+        # Note: A limitation of this data source is that it only has older data
         self.catalog = pystac_client.Client.open(
             "https://planetarycomputer.microsoft.com/api/stac/v1",
             modifier=planetary_computer.sign_inplace,
@@ -57,7 +63,7 @@ class LandsatData:
         )
 
         self.items = search.item_collection()
-        print(len(self.items))
+        # print(len(self.items))
 
         if len(self.items) == 0:
             self.selected_item = None
