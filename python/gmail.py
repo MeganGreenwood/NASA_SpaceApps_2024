@@ -15,5 +15,6 @@ def send_pass_reminder(
     "subject": f"Landsat will be passing over your location in {remind_intervals[0]}",
     "msg_html": f"Your data will be available here: {request_url}",
   }
+  print('sending email')
   message = gmail.send_message(**params)
   return

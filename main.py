@@ -146,9 +146,6 @@ def submitTrackingRequest():
 def getRequest(request_id):
     row = get_request(request_id)
     time_range_start, time_range_end = get_time_range_dt(row)
-    
-    remind_intervals_names, remind_deltas = get_remind_interval(row)
-    remind_delta_timestamps = [datetime.now(tz=timezone.utc) - delta for delta in remind_deltas]
 
     scheduled_passes = landsat_passes(
         longitude=row['longitude'],
@@ -166,11 +163,14 @@ def getRequest(request_id):
     passes = lsd.items
     
     recent_pass = datetime(9999,1,1, tzinfo=timezone.utc)
+    next_pass_time = datetime(9999, 1, 1, tzinfo=timezone.utc)
     if len(passes) > 0:
         passes_str = [ls_pass.datetime.strftime('%Y-%m-%d_%H:%M:%S') for ls_pass in passes]
         recent_pass = passes[0].datetime
     if len(scheduled_passes) > 0:
         next_pass_time = scheduled_passes[0]
+        remind_intervals_names, remind_deltas = get_remind_interval(row)
+        remind_delta_timestamps = [next_pass_time - delta for delta in remind_deltas]
     else:
         return 'No upcoming passes could be found for this location'
     # Get LandSAT data if time has passed
@@ -191,11 +191,12 @@ def getRequest(request_id):
         )
     else:
         # Check if email threshold is met
-        if any([datetime.now(tz=timezone.utc) < remind_delta_timestamp for remind_delta_timestamp in remind_delta_timestamps]):
-            try:
-                send_pass_reminder(row['email'], next_pass_time, remind_intervals_names, request_id, 'https://landsatconnect.earth' + url_for('getRequest',request_id=request_id))
-            except:
-                print('Failed to send email')
+        if len(scheduled_passes) > 0:
+            if any([datetime.now(tz=timezone.utc) > remind_delta_timestamp for remind_delta_timestamp in remind_delta_timestamps]):
+                try:
+                    send_pass_reminder(row['email'], next_pass_time, remind_intervals_names, request_id, 'https://landsatconnect.earth' + url_for('getRequest',request_id=request_id))
+                except:
+                    print('Failed to send email')
         return render_template(
             'request_pending.html',
             scheduled_passes=scheduled_passes_str,
