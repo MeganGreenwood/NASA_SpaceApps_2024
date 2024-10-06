@@ -28,19 +28,22 @@
 				<section id="main" class="container medium">
 					<header>
 						<h2>Requested Data</h2>
-						<p>Imagery that meets the selected specifications will appear below once available.</p>
 					</header>
 					<div class="box">
-							<div class="row gtr-50 gtr-uniform">
-								<div class="col-12">
-									<h4>Collected Imagery</h4>
-									<p>Time {{ next_pass_time }}</p>
-								</div>
-
-								<div class="col-12">
-									<p>The next satellite pass will occur at {{ next_pass_time }}</p>
-								</div>
-						
+                        <img src="/landsat/{{request_id}}/{{pass_time}}_rgb.png" width="100%" />
+					</div>
+					<div class="box">
+                        <img src="/landsat/{{request_id}}/{{pass_time}}_tmp.png" width="100%" />
+					</div>
+					<div class="box">
+                        <img src="/landsat/{{request_id}}/{{pass_time}}_ndvi.png" width="100%" />
+					</div>
+					<div class="box">
+                        <p> 
+						{% autoescape false %}
+							{{pass_metadata}}
+						{% endautoescape %}
+						</p>
 					</div>
 				</section>
 

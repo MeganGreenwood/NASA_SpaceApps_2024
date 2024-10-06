@@ -28,7 +28,6 @@ def landsat_passes_given_sat_id(
     passes = []
     if 'passes' in res_j.keys():
         for item in res_j['passes']:
-            print(item)
             pass_time = datetime.fromtimestamp(item['startUTC'], tz=timezone.utc)
             if time_range_end is not None and time_range_start is not None:
                 if pass_time > time_range_start and pass_time < time_range_end:
@@ -43,7 +42,7 @@ def landsat_passes(
         time_range_start: datetime = None,
         time_range_end: datetime = None,
         limit: int = 1
-):
+) -> list[datetime]:
     ls_8_passes = landsat_passes_given_sat_id(
         latitude=latitude,
         longitude=longitude,
