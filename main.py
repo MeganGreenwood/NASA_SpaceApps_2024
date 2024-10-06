@@ -10,7 +10,7 @@ import sqlite3
 from python.form_submission import formSubmission
 from python.init_db import init_db
 from python.n2yo_api import landsat_passes
-from python.landsat import landsat_catalog_search
+from python.landsat import LandsatData
 
 load_dotenv()
 app = Flask(__name__)
@@ -116,17 +116,18 @@ def getRequest(request_id):
         time_range_start=time_range_start,
         time_range_end=time_range_end
     )
+    passes_str = [pass_dt.strftime('%Y-%m-%d_%H:%M:%S') for pass_dt in passes]
     if len(passes) > 0:
         next_pass_time = passes[0]
     else:
         return 'No Passes Found'
     # Get LandSAT data if time has passed
-    # TODO: checking if range is less than today doesn't guarentee request is complete
+    # TODO: checking if range is less than today doesn't guarantee request is complete
     if next_pass_time < datetime.now(tz=timezone.utc) or (time_range_start or datetime(9999,1,1, tzinfo=timezone.utc)) < datetime.now(tz=timezone.utc):
         return render_template(
             'request_complete.html',
-            next_pass_time=next_pass_time,
-            request_id=request_id
+            request_id=request_id,
+            request_passes=passes_str
         )
     else:
         return render_template(
@@ -135,13 +136,42 @@ def getRequest(request_id):
             request_id=request_id
         )
 
-@app.route('/landsat/<request_id>_rgb.png')
-def generateLandsatRGB(request_id):
-    con = get_db()
-    cur = con.cursor()
-    res = cur.execute(f"""SELECT * FROM requests WHERE id={request_id}""")
-    row = cur.fetchone() # Query should only return one value
-    fig = landsat_catalog_search(longitude=row['longitude'], latitude=row['latitude'])
+@app.route('/request/<request_id>/pass/<pass_time>')
+def getRequestPass(request_id, pass_time):
+    row = get_request(request_id)
+    lsd = LandsatData(longitude=row['longitude'], latitude=row['latitude'], pass_time=pass_time) # TODO can we share these between calls?
+    metadata = lsd.landsat_metadata()
+    return render_template(
+        'request_pass_info.html',
+        request_id=request_id,
+        pass_time=pass_time,
+        pass_metadata=metadata
+    )
+
+@app.route('/landsat/<request_id>/<pass_time>_rgb.png')
+def generateLandsatRGB(request_id, pass_time):
+    row = get_request(request_id)
+    pass_datetime = datetime.strptime(pass_time, '%Y-%m-%d_%H:%M:%S')
+    lsd = LandsatData(longitude=row['longitude'], latitude=row['latitude'], pass_time=pass_datetime)
+    fig = lsd.landsat_rgb()
+    output = io.BytesIO()
+    FigureCanvas(fig).print_png(output)
+    return Response(output.getvalue(), mimetype='image/png')
+
+@app.route('/landsat/<request_id>/<pass_time>_tmp.png')
+def generateLandsatTmp(request_id, pass_time):
+    row = get_request(request_id)
+    lsd = LandsatData(longitude=row['longitude'], latitude=row['latitude'], pass_time=pass_time) # TODO can we share these between calls?
+    fig = lsd.landsat_temp()
+    output = io.BytesIO()
+    FigureCanvas(fig).print_png(output)
+    return Response(output.getvalue(), mimetype='image/png')
+
+@app.route('/landsat/<request_id>/<pass_time>_ndvi.png')
+def generateLandsatNdvi(request_id, pass_time):
+    row = get_request(request_id)
+    lsd = LandsatData(longitude=row['longitude'], latitude=row['latitude'], pass_time=pass_time) # TODO can we share these between calls?
+    fig = lsd.landsat_ndvi()
     output = io.BytesIO()
     FigureCanvas(fig).print_png(output)
     return Response(output.getvalue(), mimetype='image/png')
