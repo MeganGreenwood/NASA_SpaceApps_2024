@@ -1,6 +1,6 @@
 import os
 from dotenv import load_dotenv
-from flask import Flask, render_template, send_from_directory, request, g
+from flask import Flask, render_template, send_from_directory, request, g, redirect
 import sqlite3
 
 from python.form_submission import formSubmission
@@ -40,7 +40,15 @@ def submitTrackingRequest():
     con = get_db()
     cur = con.cursor()
     cur.execute(f"""
-        INSERT INTO requests VALUES (
+        INSERT INTO requests (
+                latitude,
+                longitude,
+                track_period,
+                time_range,
+                cloud_cover,
+                notification_frequency_15m,
+                email
+        ) VALUES (
             {form.latitude},
             {form.longitude},
             "{form.track_period}",
@@ -52,14 +60,14 @@ def submitTrackingRequest():
     """)
     con.commit()
 
-    return  f"""{form.latitude},
-            {form.longitude},
-            {form.track_period},
-            {form.time_range},
-            {form.cloud_cover},
-            {form.notification_frequency_15m},
-            {form.email}
-            """
+    return  redirect(f'/request/{cur.lastrowid}')
+
+@app.route('/request/<request_id>')
+def getRequest(request_id):
+    con = get_db()
+    cur = con.cursor()
+    res = cur.execute(f"""SELECT * FROM requests WHERE id={request_id}""")
+    return str(res.fetchone())
 
 @app.teardown_appcontext
 def close_connection(exception):

@@ -3,7 +3,12 @@ import sqlite3
 db = sqlite3.connect('database.db')
 cur = db.cursor()
 cur.execute("""
-CREATE TABLE requests (
+DROP TABLE IF EXISTS requests;
+""")
+cur.execute(
+"""
+CREATE TABLE IF NOT EXISTS requests (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
             latitude FLOAT,
             longitude FLOAT,
             track_period VARCHAR(32),
@@ -13,4 +18,5 @@ CREATE TABLE requests (
             email VARCHAR(128)
 );
 """)
+db.commit()
 cur.close()
