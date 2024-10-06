@@ -1,7 +1,7 @@
 import sqlite3
 
 def init_db():
-    db = sqlite3.connect('database.db')
+    db = sqlite3.connect('database/database.db')
     cur = db.cursor()
     # cur.execute("""
     # DROP TABLE IF EXISTS requests;

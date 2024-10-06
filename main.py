@@ -15,7 +15,7 @@ from python.landsat import landsat_catalog_search
 load_dotenv()
 app = Flask(__name__)
 
-DATABASE = 'database.db'
+DATABASE = 'database/database.db'
 
 def get_db():
     db = getattr(g, '_database', None)
