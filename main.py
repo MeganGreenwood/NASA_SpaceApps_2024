@@ -5,6 +5,7 @@ import sqlite3
 
 from python.form_submission import formSubmission
 from python.init_db import init_db
+from python.n2yo_api import landsat_8_passes
 
 load_dotenv()
 app = Flask(__name__)
@@ -16,6 +17,7 @@ def get_db():
     if db is None:
         init_db()
         db = g._database = sqlite3.connect(DATABASE)
+        db.row_factory = sqlite3.Row
     return db
 
 @app.route("/")
@@ -36,7 +38,7 @@ def submitTrackingRequest():
         time_range = request.form.get('time_range'),
         cloud_cover = request.form.get('cloud_cover'),
         notification_frequency_15m = request.form.get('notification_frequency_15m'),
-        email = request.form.get('email')
+        email = request.form.get('contact_email')
     )
 
     con = get_db()
@@ -69,7 +71,9 @@ def getRequest(request_id):
     con = get_db()
     cur = con.cursor()
     res = cur.execute(f"""SELECT * FROM requests WHERE id={request_id}""")
-    return str(res.fetchone())
+    row = cur.fetchone() # Query should only return one value
+    next_pass_time = str(landsat_8_passes(row['longitude'], row['latitude'])[0])
+    return render_template('request.html', next_pass_time=next_pass_time)
 
 @app.teardown_appcontext
 def close_connection(exception):
