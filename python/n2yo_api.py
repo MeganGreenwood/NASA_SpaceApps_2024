@@ -1,5 +1,5 @@
 from dotenv import load_dotenv
-from datetime import datetime
+from datetime import datetime, timezone
 import json
 import requests
 import os
@@ -7,21 +7,61 @@ import os
 load_dotenv()
 # TODO Handle token in production
 
-def landsat_8_passes(
+def landsat_passes_given_sat_id(
         latitude: float,
         longitude: float,
-        limit: int = 1
+        norad_id: int,
+        time_range_start: datetime = None,
+        time_range_end: datetime = None,
 ):
-    norad_id = 39084 # LANDSAT 8
     observer_lat = latitude
     observer_lng = longitude
     observer_alt = 1000 # TODO make this dynamic?
     days = 10
-    min_elevation = 76 # LANDSAT swath width is approx. 14 degrees
+    min_elevation = 83 # LANDSAT swath width is approx. 14 degrees
 
-    res = requests.get(f'https://api.n2yo.com/rest/v1/satellite/radiopasses/{norad_id}/{observer_lat}/{observer_lng}/{observer_alt}/{days}/{min_elevation}&apiKey={os.environ["N2YO_API_TOKEN"]}')
-    res_j = json.loads(res.text)
+    # print(f'https://api.n2yo.com/rest/v1/satellite/radiopasses/{norad_id}/{observer_lat}/{observer_lng}/{observer_alt}/{days}/{min_elevation}&apiKey={os.environ["N2YO_API_TOKEN"]}')
+    res_ls = requests.get(f'https://api.n2yo.com/rest/v1/satellite/radiopasses/{norad_id}/{observer_lat}/{observer_lng}/{observer_alt}/{days}/{min_elevation}&apiKey={os.environ["N2YO_API_TOKEN"]}')
+    res_j = json.loads(res_ls.text)
+    # print(res_j)
+    # print(time_range_start)
     passes = []
-    for item in res_j['passes']:
-        passes.append(datetime.fromtimestamp(item['startUTC']).strftime('%c'))
-    return passes[:limit]
+    if 'passes' in res_j.keys():
+        for item in res_j['passes']:
+            print(item)
+            pass_time = datetime.fromtimestamp(item['startUTC'], tz=timezone.utc)
+            if time_range_end is not None and time_range_start is not None:
+                if pass_time > time_range_start and pass_time < time_range_end:
+                    passes.append(pass_time)
+            else:
+                passes.append(pass_time)
+    return passes
+
+def landsat_passes(
+        latitude,
+        longitude,
+        time_range_start: datetime = None,
+        time_range_end: datetime = None,
+        limit: int = 1
+):
+    ls_8_passes = landsat_passes_given_sat_id(
+        latitude=latitude,
+        longitude=longitude,
+        time_range_start=time_range_start,
+        time_range_end=time_range_end,
+        norad_id=39084 # LANDSAT 8
+    )
+    ls_9_passes = landsat_passes_given_sat_id(
+        latitude=latitude,
+        longitude=longitude,
+        time_range_start=time_range_start,
+        time_range_end=time_range_end,
+        norad_id=49260 # LANDSAT 9
+    )
+
+    all_passes = ls_8_passes + ls_9_passes
+    all_passes_sorted = sorted(all_passes)
+
+    return all_passes_sorted[:limit]
+
+# print(landsat_passes(-33.96245606251111, 149.9673963028338, limit=3))
