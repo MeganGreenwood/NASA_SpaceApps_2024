@@ -77,7 +77,7 @@ def submitTrackingRequest():
     form = formSubmission(
         latitude = request.form.get('target_coordinates_latitude'),
         longitude = request.form.get('target_coordinates_longitude'),
-        track_period = request.form.get('track_period'),
+        track_period = request.form.get('track_period_next'), # TODO this is just a true/false for a radio input
         time_range_start = request.form.get('time_range_start'),
         time_range_end = request.form.get('time_range_end'),
         cloud_cover = request.form.get('cloud_cover'),
