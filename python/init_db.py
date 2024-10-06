@@ -13,9 +13,16 @@ def init_db():
                 latitude FLOAT,
                 longitude FLOAT,
                 track_period VARCHAR(32),
-                time_range VARCHAR(64),
+                time_range_start VARCHAR(64),
+                time_range_end VARCHAR(64),
                 cloud_cover FLOAT,
                 notification_frequency_15m BOOLEAN,
+                notification_frequency_30m BOOLEAN,
+                notification_frequency_1hr BOOLEAN,
+                notification_frequency_6hr BOOLEAN,
+                notification_frequency_12hr BOOLEAN,
+                notification_frequency_1d BOOLEAN,
+                notification_frequency_1w BOOLEAN,
                 email VARCHAR(128)
     );
     """)
