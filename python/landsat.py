@@ -18,10 +18,10 @@ class LandsatData:
     ):
         self.latitude = latitude
         self.longitude = longitude
-        self.bbox_xmin = longitude - 0.0006
-        self.bbox_ymin = latitude - 0.0006
-        self.bbox_xmax = longitude + 0.0006
-        self.bbox_ymax = latitude + 0.0006
+        self.bbox_xmin = longitude - 0.0008
+        self.bbox_ymin = latitude - 0.0008
+        self.bbox_xmax = longitude + 0.0008
+        self.bbox_ymax = latitude + 0.0008
 
         if time_range_start is not None and time_range_end is not None:
             self.input_start = time_range_start.strftime('%Y-%m-%d')
