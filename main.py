@@ -104,13 +104,25 @@ def submitTrackingRequest():
 @app.route('/request/<request_id>')
 def getRequest(request_id):
     row = get_request(request_id)
-    passes = landsat_passes(longitude=row['longitude'], latitude=row['latitude'])
+    time_range_start = None
+    if row['time_range_start'] != '':
+        time_range_start = datetime.strptime(row['time_range_start']+'+0000', '%Y-%m-%d%z')
+    time_range_end = None
+    if row['time_range_end'] != '':
+        time_range_end = datetime.strptime(row['time_range_end']+'+0000', '%Y-%m-%d%z')
+    passes = landsat_passes(
+        longitude=row['longitude'],
+        latitude=row['latitude'],
+        time_range_start=time_range_start,
+        time_range_end=time_range_end
+    )
     if len(passes) > 0:
         next_pass_time = passes[0]
     else:
-        return 'Error'
+        return 'No Passes Found'
     # Get LandSAT data if time has passed
-    if next_pass_time < datetime.now(tz=timezone.utc):
+    # TODO: checking if range is less than today doesn't guarentee request is complete
+    if next_pass_time < datetime.now(tz=timezone.utc) or (time_range_start or datetime(9999,1,1, tzinfo=timezone.utc)) < datetime.now(tz=timezone.utc):
         return render_template(
             'request_complete.html',
             next_pass_time=next_pass_time,

@@ -20,16 +20,21 @@ def landsat_passes_given_sat_id(
     days = 10
     min_elevation = 83 # LANDSAT swath width is approx. 14 degrees
 
-    res_ls_8 = requests.get(f'https://api.n2yo.com/rest/v1/satellite/radiopasses/{norad_id}/{observer_lat}/{observer_lng}/{observer_alt}/{days}/{min_elevation}&apiKey={os.environ["N2YO_API_TOKEN"]}')
-    res_j = json.loads(res_ls_8.text)
+    # print(f'https://api.n2yo.com/rest/v1/satellite/radiopasses/{norad_id}/{observer_lat}/{observer_lng}/{observer_alt}/{days}/{min_elevation}&apiKey={os.environ["N2YO_API_TOKEN"]}')
+    res_ls = requests.get(f'https://api.n2yo.com/rest/v1/satellite/radiopasses/{norad_id}/{observer_lat}/{observer_lng}/{observer_alt}/{days}/{min_elevation}&apiKey={os.environ["N2YO_API_TOKEN"]}')
+    res_j = json.loads(res_ls.text)
+    # print(res_j)
+    # print(time_range_start)
     passes = []
-    for item in res_j['passes']:
-        pass_time = datetime.fromtimestamp(item['startUTC'], tz=timezone.utc)
-        if time_range_end is not None and time_range_start is not None:
-            if pass_time > time_range_start and pass_time < time_range_end:
+    if 'passes' in res_j.keys():
+        for item in res_j['passes']:
+            print(item)
+            pass_time = datetime.fromtimestamp(item['startUTC'], tz=timezone.utc)
+            if time_range_end is not None and time_range_start is not None:
+                if pass_time > time_range_start and pass_time < time_range_end:
+                    passes.append(pass_time)
+            else:
                 passes.append(pass_time)
-        else:
-            passes.append(pass_time)
     return passes
 
 def landsat_passes(
@@ -59,3 +64,4 @@ def landsat_passes(
 
     return all_passes_sorted[:limit]
 
+# print(landsat_passes(-33.96245606251111, 149.9673963028338, limit=3))
