@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 import pystac_client
 import planetary_computer
 import odc.stac
@@ -11,7 +11,10 @@ class LandsatData:
             self,
             latitude: float,
             longitude: float,
-            pass_time: datetime
+            pass_time: datetime | None,
+            time_range_start: datetime | None,
+            time_range_end: datetime | None,
+            cloud_cover: float
     ):
         self.latitude = latitude
         self.longitude = longitude
@@ -20,11 +23,18 @@ class LandsatData:
         self.bbox_xmax = longitude + 0.0006
         self.bbox_ymax = latitude + 0.0006
 
-        self.input_start = "2024-05-01" # TODO pass this in dynamically
-        self.input_end = "2024-12-31"
+        if time_range_start is not None and time_range_end is not None:
+            self.input_start = time_range_start.strftime('%Y-%m-%d')
+            self.input_end = time_range_end.strftime('%Y-%m-%d')
+        elif pass_time is not None:
+            self.input_start = pass_time - timedelta(hours=1)
+            self.input_end = pass_time + timedelta(hours=1)
+        else:
+            raise Exception('No time data selected for satellite pass')
 
         self.bbox_of_interest = [self.bbox_xmin, self.bbox_ymin, self.bbox_xmax, self.bbox_ymax]
         self.time_of_interest = f"{self.input_start}/{self.input_end}"
+        print(self.time_of_interest)
 
         self.catalog = pystac_client.Client.open(
             "https://planetarycomputer.microsoft.com/api/stac/v1",
@@ -32,8 +42,7 @@ class LandsatData:
         )
 
         #Obtain user input maximum cloud cover from Tracking Request page
-        input_cloud_cover = 0.1
-        input_cloud_cover = input_cloud_cover * 100
+        input_cloud_cover = cloud_cover * 100
 
         #Search current landsat level 2 data catalog for all images containing the specified bounding box, in the specified time period
         #Returns only images from Landsat-8/landsat-9 below the maximum cloud cover threshold 
@@ -48,6 +57,7 @@ class LandsatData:
         )
 
         self.items = search.item_collection()
+        print(len(self.items))
 
         if len(self.items) == 0:
             self.selected_item = None

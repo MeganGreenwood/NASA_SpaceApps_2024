@@ -64,6 +64,15 @@ def get_remind_interval(row: sqlite3.Row) -> list[str, timedelta]:
         deltas.append(timedelta(weeks=1))
     return english_intervals, deltas
 
+def get_time_range_dt(row: sqlite3.Row):
+    time_range_start = None
+    if row['time_range_start'] != '':
+        time_range_start = datetime.strptime(row['time_range_start']+'+0000', '%Y-%m-%d%z')
+    time_range_end = None
+    if row['time_range_end'] != '':
+        time_range_end = datetime.strptime(row['time_range_end']+'+0000', '%Y-%m-%d%z')
+    return time_range_start, time_range_end
+
 @app.route("/")
 def hello_world():
     return send_from_directory('static', 'Homepage.html')
@@ -136,13 +145,7 @@ def submitTrackingRequest():
 @app.route('/request/<request_id>')
 def getRequest(request_id):
     row = get_request(request_id)
-    # Set time range start and end
-    time_range_start = None
-    if row['time_range_start'] != '':
-        time_range_start = datetime.strptime(row['time_range_start']+'+0000', '%Y-%m-%d%z')
-    time_range_end = None
-    if row['time_range_end'] != '':
-        time_range_end = datetime.strptime(row['time_range_end']+'+0000', '%Y-%m-%d%z')
+    time_range_start, time_range_end = get_time_range_dt(row)
     
     remind_intervals_names, remind_deltas = get_remind_interval(row)
     remind_delta_timestamps = [datetime.now(tz=timezone.utc) - delta for delta in remind_deltas]
@@ -192,7 +195,15 @@ def getRequest(request_id):
 @app.route('/request/<request_id>/pass/<pass_time>')
 def getRequestPass(request_id, pass_time):
     row = get_request(request_id)
-    lsd = LandsatData(longitude=row['longitude'], latitude=row['latitude'], pass_time=pass_time) # TODO can we share these between calls?
+    time_range_start, time_range_end = get_time_range_dt(row)
+    lsd = LandsatData(
+        longitude=row['longitude'],
+        latitude=row['latitude'],
+        pass_time=pass_time,
+        time_range_start=time_range_start,
+        time_range_end=time_range_end,
+        cloud_cover=row['cloud_cover']
+    ) # TODO can we share these between calls?
     metadata = lsd.landsat_metadata()
     return render_template(
         'request_pass_info.html',
@@ -204,8 +215,16 @@ def getRequestPass(request_id, pass_time):
 @app.route('/landsat/<request_id>/<pass_time>_rgb.png')
 def generateLandsatRGB(request_id, pass_time):
     row = get_request(request_id)
+    time_range_start, time_range_end = get_time_range_dt(row)
     pass_datetime = datetime.strptime(pass_time, '%Y-%m-%d_%H:%M:%S')
-    lsd = LandsatData(longitude=row['longitude'], latitude=row['latitude'], pass_time=pass_datetime)
+    lsd = LandsatData(
+        longitude=row['longitude'],
+        latitude=row['latitude'],
+        pass_time=pass_time,
+        time_range_start=time_range_start,
+        time_range_end=time_range_end,
+        cloud_cover=row['cloud_cover']
+    )    
     fig = lsd.landsat_rgb()
     output = io.BytesIO()
     FigureCanvas(fig).print_png(output)
@@ -214,8 +233,16 @@ def generateLandsatRGB(request_id, pass_time):
 @app.route('/landsat/<request_id>/<pass_time>_rgb/download', methods=['GET', 'POST'])
 def generateLandsatRGBDownload(request_id, pass_time):
     row = get_request(request_id)
+    time_range_start, time_range_end = get_time_range_dt(row)
     pass_datetime = datetime.strptime(pass_time, '%Y-%m-%d_%H:%M:%S')
-    lsd = LandsatData(longitude=row['longitude'], latitude=row['latitude'], pass_time=pass_datetime)
+    lsd = LandsatData(
+        longitude=row['longitude'],
+        latitude=row['latitude'],
+        pass_time=pass_time,
+        time_range_start=time_range_start,
+        time_range_end=time_range_end,
+        cloud_cover=row['cloud_cover']
+    )    
     fig = lsd.landsat_rgb()
     file_name = f'landsat_rgb_{request_id}_{pass_time}.png'
     FigureCanvas(fig).print_png('upload/'+file_name)
@@ -224,7 +251,15 @@ def generateLandsatRGBDownload(request_id, pass_time):
 @app.route('/landsat/<request_id>/<pass_time>_tmp.png')
 def generateLandsatTmp(request_id, pass_time):
     row = get_request(request_id)
-    lsd = LandsatData(longitude=row['longitude'], latitude=row['latitude'], pass_time=pass_time) # TODO can we share these between calls?
+    time_range_start, time_range_end = get_time_range_dt(row)
+    lsd = LandsatData(
+        longitude=row['longitude'],
+        latitude=row['latitude'],
+        pass_time=pass_time,
+        time_range_start=time_range_start,
+        time_range_end=time_range_end,
+        cloud_cover=row['cloud_cover']
+    )    
     fig = lsd.landsat_temp()
     output = io.BytesIO()
     FigureCanvas(fig).print_png(output)
@@ -233,7 +268,15 @@ def generateLandsatTmp(request_id, pass_time):
 @app.route('/landsat/<request_id>/<pass_time>_tmp/download')
 def generateLandsatTmpDownload(request_id, pass_time):
     row = get_request(request_id)
-    lsd = LandsatData(longitude=row['longitude'], latitude=row['latitude'], pass_time=pass_time) # TODO can we share these between calls?
+    time_range_start, time_range_end = get_time_range_dt(row)
+    lsd = LandsatData(
+        longitude=row['longitude'],
+        latitude=row['latitude'],
+        pass_time=pass_time,
+        time_range_start=time_range_start,
+        time_range_end=time_range_end,
+        cloud_cover=row['cloud_cover']
+    )    
     fig = lsd.landsat_temp()
     file_name = f'landsat_tmp_{request_id}_{pass_time}.png'
     FigureCanvas(fig).print_png('upload/'+file_name)
@@ -242,7 +285,15 @@ def generateLandsatTmpDownload(request_id, pass_time):
 @app.route('/landsat/<request_id>/<pass_time>_ndvi.png')
 def generateLandsatNdvi(request_id, pass_time):
     row = get_request(request_id)
-    lsd = LandsatData(longitude=row['longitude'], latitude=row['latitude'], pass_time=pass_time) # TODO can we share these between calls?
+    time_range_start, time_range_end = get_time_range_dt(row)
+    lsd = LandsatData(
+        longitude=row['longitude'],
+        latitude=row['latitude'],
+        pass_time=pass_time,
+        time_range_start=time_range_start,
+        time_range_end=time_range_end,
+        cloud_cover=row['cloud_cover']
+    )    
     fig = lsd.landsat_ndvi()
     output = io.BytesIO()
     FigureCanvas(fig).print_png(output)
@@ -251,7 +302,15 @@ def generateLandsatNdvi(request_id, pass_time):
 @app.route('/landsat/<request_id>/<pass_time>_ndvi/download')
 def generateLandsatNdviDownload(request_id, pass_time):
     row = get_request(request_id)
-    lsd = LandsatData(longitude=row['longitude'], latitude=row['latitude'], pass_time=pass_time) # TODO can we share these between calls?
+    time_range_start, time_range_end = get_time_range_dt(row)
+    lsd = LandsatData(
+        longitude=row['longitude'],
+        latitude=row['latitude'],
+        pass_time=pass_time,
+        time_range_start=time_range_start,
+        time_range_end=time_range_end,
+        cloud_cover=row['cloud_cover']
+    )    
     fig = lsd.landsat_ndvi()
     file_name = f'landsat_ndvi_{request_id}_{pass_time}.png'
     FigureCanvas(fig).print_png('upload/'+file_name)
